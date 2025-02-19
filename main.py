@@ -14,8 +14,8 @@ Sales = []
 Prices = []
 Places = []
 
-for i in range(1, 3):
-    URL = f'https://www.bukalapak.com/c/handphone/hp-smartphone/hp-android?page={str(i)}&search%5Bsort_by%5D=weekly_sales_ratio%3Adesc'
+for i in range(1):
+    URL = f'https://www.bukalapak.com/c/handphone/hp-smartphone/hp-android?page={str(1)}&search%5Bsort_by%5D=weekly_sales_ratio%3Adesc'
     HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
     }
