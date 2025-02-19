@@ -107,8 +107,7 @@ df_to_csv['Link Pembelian'] = Links  # Use raw links for CSV
 df_to_csv.to_csv('Bukalapak-Handphones.csv')
 
 # Streamlit app
-st.set_page_config(layout='wide',
-                   page_title="Bukalapak Product Scraper",
+st.set_page_config(page_title="Bukalapak Product Scraper",
                    page_icon="🛒")
 st.title("Bukalapak Product Scraping")
 st.subheader("By Ahmad Fauzan")
