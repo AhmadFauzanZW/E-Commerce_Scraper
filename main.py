@@ -108,7 +108,8 @@ df_to_csv.to_csv('Bukalapak-Handphones.csv')
 
 # Streamlit app
 st.set_page_config(page_title="Bukalapak Product Scraper",
-                   page_icon="🛒")
+                   page_icon="🛒",
+                   layout='wide')
 st.title("Bukalapak Product Scraping")
 st.subheader("By Ahmad Fauzan")
 st.divider()
