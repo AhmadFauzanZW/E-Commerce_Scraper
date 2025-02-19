@@ -1,10 +1,9 @@
 # Program Web Scraper - Bukalapak
-
 # Import Modules
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-import time
+import streamlit as st
 
 # Deklarasi Variable
 Products = []
@@ -15,7 +14,7 @@ Sales = []
 Prices = []
 Places = []
 
-for i in range(1, 21):
+for i in range(1, 5):
     URL = f'https://www.bukalapak.com/c/handphone/hp-smartphone/hp-android?page={str(i)}&search%5Bsort_by%5D=weekly_sales_ratio%3Adesc'
     HEADERS = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.95 Safari/537.36'
@@ -26,65 +25,50 @@ for i in range(1, 21):
     soup = BeautifulSoup(r.text, 'html5lib')
 
     # Selected Box untuk di scrape (main canvas)
-    box = soup.find('div', class_ = 'bl-flex-item bl-product-list-wrapper')
+    box = soup.find('div', class_='bl-flex-item bl-product-list-wrapper')
 
     # Products link
-    links = box.find_all('a', class_ = 'slide')
+    links = box.find_all('a', class_='slide')
 
     for i in links:
         link = i.get('href')
         Links.append(link)
 
-    # print(len(Links))
-
     # Products name, rating, and seller
-    products = box.find_all('a', class_ = 'bl-link')
+    products = box.find_all('a', class_='bl-link')
 
     for i in products:
         product = i.text.strip()
         Products.append(product)
-    # print(Products)
 
     # Products name
     Names = [Products[i] for i in range(0, len(Products), 3)]
 
-    # print(len(Names))
-
     # Products rating
     Ratings = [Products[i] for i in range(1, len(Products), 3)]
 
-    # print(len(Ratings))
-
     # Products sold volume
-    sales = box.find_all('p', class_ = 'bl-text bl-text--body-14 bl-text--subdued')
+    sales = box.find_all('p', class_='bl-text bl-text--body-14 bl-text--subdued')
 
     for i in sales:
         sold = i.text.strip()
-        sale = sold[7:]
-        Sales.append(sale)
+        Sales.append(sold)
 
     Sales = [Sales[i] for i in range(1, len(Sales), 2)]
 
-    # print(len(Solds))
-
     # Products price
-    prices = box.find_all('p', class_ = 'bl-text bl-text--subheading-20 bl-text--semi-bold bl-text--ellipsis__1')
+    prices = box.find_all('p', class_='bl-text bl-text--subheading-20 bl-text--semi-bold bl-text--ellipsis__1')
 
     for i in prices:
         price = i.text.strip()
         Prices.append(price)
 
-    # print(len(Prices))
-
     # Products seller location
-    places = box.find_all('div', class_ = 'bl-product-card__description-store')
+    places = box.find_all('div', class_='bl-product-card__description-store')
 
     for i in places:
         place = i.text.strip()
         Places.append(place)
-
-    # print(len(Places))
-    time.sleep(2)
 
 # Ensure all lists are of the same length
 max_length = max(len(Names), len(Ratings), len(Sales), len(Prices), len(Places), len(Links))
@@ -97,6 +81,13 @@ Prices.extend([None] * (max_length - len(Prices)))
 Places.extend([None] * (max_length - len(Places)))
 Links.extend([None] * (max_length - len(Links)))
 
+# Create clickable links using HTML
+clickable_links = []
+for link in Links:
+    if link:
+        clickable_links.append(f'<a href="{link}" target="_blank">View Product</a>')
+    else:
+        clickable_links.append(None)
 
 # Create a DataFrame from the dictionary
 data = {
@@ -105,14 +96,30 @@ data = {
     'Rating': Ratings,
     'Total Terjual': Sales,
     'Harga': Prices,
-    'Link Pembelian': Links
+    'Link Pembelian': clickable_links
 }
 
 df = pd.DataFrame(data, index=range(1, len(Links) + 1))
 
-# Print the DataFrame
-print(df)
+# Save to CSV (optional)
+df_to_csv = df.copy()
+df_to_csv['Link Pembelian'] = Links  # Use raw links for CSV
+df_to_csv.to_csv('Bukalapak-Handphones.csv')
 
-df.to_csv('Bukalapak-Handphones.csv')
+# Streamlit app
+st.set_page_config(layout='wide')
+st.title("Bukalapak Product Scraping")
+st.subheader("By Ahmad Fauzan")
+st.divider()
 
-print(len(Links), len(Names), len(Ratings), len(Sales), len(Prices), len(Places))
+# Display DataFrame with clickable links
+st.write(df.to_html(escape=False), unsafe_allow_html=True)
+
+# Add a download button for the CSV
+csv = df_to_csv.to_csv(index=False)
+st.download_button(
+    label="Download data as CSV",
+    data=csv,
+    file_name='Bukalapak-Handphones.csv',
+    mime='text/csv',
+)
